@@ -1,3 +1,4 @@
+//#define NEURAL
 #ifdef NEURAL
 
 /*
@@ -47,7 +48,7 @@ void set_example(int n, float x[])
 
 #define GEN_TIMES 500000.0
 
-int main1()
+int main()
 {
 	srand(time(NULL)); rand();
 	

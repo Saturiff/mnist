@@ -32,6 +32,9 @@
     <Text Include="mnist_official.txt">
       <Filter>來源檔案</Filter>
     </Text>
+    <Text Include="note.txt">
+      <Filter>來源檔案</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mnist.h">

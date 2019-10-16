@@ -1,0 +1,12 @@
+
+Label file:
+	int[2]	magic number(0x0081), numbers of items
+	byte	label ..
+
+Image file:
+	int[4]	magic number(0x0083), numbers of images, number of rows, number of columns
+	byte	pixel ..
+
+magic number:
+	0x00, 0x00, 0x08 -> unsigned byte, dimensions of the vector/matrix
+

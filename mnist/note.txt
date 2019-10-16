@@ -1,0 +1,71 @@
+
+UE4 output --
+
+基本上數字會出現在這個像素:
+ww < -10
+
+基本上數字不會出現在這個像素:
+ww > 10
+
+未確定:
+-10 < ww < 10
+
+
+
+
+
+Note --
+
+Label file:
+	int[2]	magic number(0x0081), numbers of items
+	byte	label ..
+
+Image file:
+	int[4]	magic number(0x0083), numbers of images, number of rows, number of columns
+	byte	pixel ..
+
+magic number:
+	0x00, 0x00, 0x08 -> unsigned byte, dimensions of the vector/matrix
+
+
+ADD:
+shape -> weight
+對特定數字依照形狀規定限定特定權重
+邏輯
+add weight by pixel range
+
+
+Legacy code --
+
+權重運算
+for (int j = 0; j < NUMBER_OF_TOTAL_PIXEL; j++) w[i][j] += L_RATE * (float)data[j] * dy; // 90.11 23s
+
+寫入檔案
+FILE* f;
+f = fopen("D:/Desktop/mnist/o.csv", "w");
+for (int i = 0; i < NUMBER_OF_COLUMNS; i++)
+{
+	for (int j = 0; j < NUMBER_OF_ROWS; j++)
+	{
+		float o = weight[0][i * NUMBER_OF_COLUMNS + j];
+		fprintf(f, "%.2f,", o);
+	}
+	fprintf(f, "\n");
+}
+fclose(f);
+
+讀取int32
+void NextInt32_Simple(FILE* filePtr)
+{
+	byte buffer[sizeof(int)] = { 0 };
+	fread(buffer, sizeof(byte), sizeof(int), filePtr);
+}
+int NextInt32(FILE* filePtr)
+{
+	byte buffer[sizeof(int)] = { 0 };
+	fread(buffer, sizeof(byte), sizeof(int), filePtr);
+	int num = 0;
+	for (int i = 0; i < sizeof(int); i++) num |= (int)buffer[i] << (sizeof(int) - i - 1) * 8; // bit offset 0, 8, 16, 24
+	return num;
+}
+

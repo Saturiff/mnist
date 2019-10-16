@@ -16,8 +16,8 @@ FILE * f = fopen("D:\\Desktop\\mnist\\a.txt", "w");
 // 生成隨機權重與bias
 void InitNeural(float& b, float* ww)
 {
-	for (int i = 0; i < NUMBER_OF_TOTAL_PIXEL; i++) ww[i] = rand() % 101 * 0.01;		//  0.0 .. 1.0
-	b = rand() % 101 * 0.01 - 0.5;	// -0.5 .. 0.5
+	for (int i = 0; i < NUMBER_OF_TOTAL_PIXEL; i++) ww[i] = rand() * 1.0 / RAND_MAX;		//  0.0 .. 1.0
+	b = rand() * 1.0 / RAND_MAX - 0.5;	// -0.5 .. 0.5
 }
 
 // 邏輯回歸(偏權值b+Sigma(資料x*電腦權重w))

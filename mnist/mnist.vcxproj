@@ -157,6 +157,7 @@
     <ClCompile Include="true_main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="note.txt" />
     <Text Include="mnist_official.txt" />
   </ItemGroup>
   <ItemGroup>

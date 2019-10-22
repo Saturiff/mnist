@@ -1,6 +1,3 @@
-#define MAIN
-#if defined(MAIN) && !defined(MUTI)
-
 #include "mnist.h"
 #include "stdlib.h"
 #include "time.h"
@@ -83,5 +80,3 @@ int main()
 	delete[] answerArray, weight, bias, output;
 	return 0;
 }
-
-#endif // MAIN

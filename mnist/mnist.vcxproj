@@ -151,13 +151,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="a.cpp" />
     <ClCompile Include="mnist.cpp" />
-    <ClCompile Include="neural.cpp" />
     <ClCompile Include="true_main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="note.txt" />
+    <Text Include="D:\Desktop\mnist\note.txt" />
     <Text Include="mnist_official.txt" />
   </ItemGroup>
   <ItemGroup>

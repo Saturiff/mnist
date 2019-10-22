@@ -21,12 +21,6 @@
     <ClCompile Include="mnist.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
-    <ClCompile Include="a.cpp">
-      <Filter>來源檔案\sub</Filter>
-    </ClCompile>
-    <ClCompile Include="neural.cpp">
-      <Filter>來源檔案\sub</Filter>
-    </ClCompile>
     <ClCompile Include="true_main.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
@@ -35,7 +29,7 @@
     <Text Include="mnist_official.txt">
       <Filter>來源檔案\sub</Filter>
     </Text>
-    <Text Include="note.txt">
+    <Text Include="D:\Desktop\mnist\note.txt">
       <Filter>來源檔案\sub</Filter>
     </Text>
   </ItemGroup>

@@ -16,7 +16,7 @@ FILE * f = fopen("D:\\Desktop\\mnist\\a.txt", "w");
 // 生成隨機權重與bias
 void InitNeural(float& b, float* ww)
 {
-	for (int i = 0; i < NUMBER_OF_TOTAL_PIXEL; i++) ww[i] = rand() * 1.0 / RAND_MAX;		//  0.0 .. 1.0
+	for (int i = 0; i < TOTAL_PIXEL; i++) ww[i] = rand() * 1.0 / RAND_MAX;		//  0.0 .. 1.0
 	b = rand() * 1.0 / RAND_MAX - 0.5;	// -0.5 .. 0.5
 }
 
@@ -24,7 +24,7 @@ void InitNeural(float& b, float* ww)
 void G(byte x[], float w[], float b, float& yy)
 {
 	yy = b;
-	for (int pix = 0; pix < NUMBER_OF_TOTAL_PIXEL; pix++) yy += w[pix] * (x[pix] / 255) * 0.01; // max = 7.84 _ min = 0.0
+	for (int pix = 0; pix < TOTAL_PIXEL; pix++) yy += w[pix] * (x[pix] / 255) * 0.01; // max = 7.84 _ min = 0.0
 	yy /= 7.84;
 	printf("yy = %.2f\n", yy);
 	yy = exp(yy) / (exp(yy) + 1);
@@ -35,7 +35,7 @@ int main()
 	srand((unsigned int)time(NULL)); rand();
 	MnistMain();
 	float  ans = 0;	// 標準解答
-	float* ww = new float[NUMBER_OF_TOTAL_PIXEL];	// 預測權重，每個像素一個(784)
+	float* ww = new float[TOTAL_PIXEL];	// 預測權重，每個像素一個(784)
 	float  yy = 0;	// 預測結果
 	float  b = 0;	// bias
 	InitNeural(b, ww);	// random bias, weight
@@ -54,7 +54,7 @@ int main()
 
 			float dy = 1 - yy;  // 模擬猜中
 			//float dy = 0 - yy;  // 模擬沒猜中
-			for (int j = 0; j < NUMBER_OF_TOTAL_PIXEL; j++) ww[j] = ww[j] + r * data[j] * dy * (yy * (1 - yy));
+			for (int j = 0; j < TOTAL_PIXEL; j++) ww[j] = ww[j] + r * data[j] * dy * (yy * (1 - yy));
 			b = b + r * dy * (yy * (1 - yy));
 				
 			if (yy > 0.5) cnt++; // 模擬猜中

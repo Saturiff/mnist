@@ -1,4 +1,12 @@
+current -> RNN
+販賣機
+1 5 10 A B C R
+只能放入X塊，否則R
 
+
+
+
+================================
 UE4 output --
 
 基本上數字會出現在這個像素:
@@ -15,6 +23,8 @@ ww > 10
 
 
 Note --
+
+one-hot encoding
 
 Label file:
 	int[2]	magic number(0x0081), numbers of items
@@ -37,17 +47,23 @@ add weight by pixel range
 
 Legacy code --
 
+debug forward
+printf("guess[%d] = %f (%f / %f)\n", i, guessArray[i], exp(guessArray[i]), ((double)exp(guessArray[i]) + 1.0));
+
+經典版
+for (int j = 0; j < TOTAL_PIXEL; j++) weight[i][j] += L_RATE * data[j] * dy;
+
 權重運算
-for (int j = 0; j < NUMBER_OF_TOTAL_PIXEL; j++) w[i][j] += L_RATE * (float)data[j] * dy; // 90.11 23s
+for (int j = 0; j < TOTAL_PIXEL; j++) w[i][j] += L_RATE * (float)data[j] * dy;
 
 寫入檔案
 FILE* f;
 f = fopen("D:/Desktop/mnist/o.csv", "w");
-for (int i = 0; i < NUMBER_OF_COLUMNS; i++)
+for (int i = 0; i < COLUMNS; i++)
 {
-	for (int j = 0; j < NUMBER_OF_ROWS; j++)
+	for (int j = 0; j < ROWS; j++)
 	{
-		float o = weight[0][i * NUMBER_OF_COLUMNS + j];
+		float o = weight[0][i * COLUMNS + j];
 		fprintf(f, "%.2f,", o);
 	}
 	fprintf(f, "\n");

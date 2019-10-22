@@ -13,27 +13,30 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="來源檔案\sub">
+      <UniqueIdentifier>{cc2243e4-eff4-4b0f-a26e-c8e795e9a92c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="mnist.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
+    <ClCompile Include="a.cpp">
+      <Filter>來源檔案\sub</Filter>
+    </ClCompile>
     <ClCompile Include="neural.cpp">
-      <Filter>來源檔案</Filter>
+      <Filter>來源檔案\sub</Filter>
     </ClCompile>
     <ClCompile Include="true_main.cpp">
-      <Filter>來源檔案</Filter>
-    </ClCompile>
-    <ClCompile Include="a.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="mnist_official.txt">
-      <Filter>來源檔案</Filter>
+      <Filter>來源檔案\sub</Filter>
     </Text>
     <Text Include="note.txt">
-      <Filter>來源檔案</Filter>
+      <Filter>來源檔案\sub</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>

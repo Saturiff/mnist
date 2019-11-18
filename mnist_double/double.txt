@@ -1,0 +1,42 @@
+
+
+/*
+data   = a(L-1)
+guess  = a(L)
+answer = y
+z      = z(L)
+*/
+/*
+float c0 = 0;
+for (int i = 0; i < NEURON_QUNATITY; i++) c0 += pow(guessArray[i] - answerArray[i], 2);
+c0 /= NEURON_QUNATITY;
+printf("c0 = %f\n", c0);
+*/
+
+//float dy = 2.0 * ((double)guessArray[i] - (double)answerArray[i]);
+//for (int j = 0; j < ((isHidden) ? NEURON_QUNATITY : TOTAL_PIXEL); j++) weight[i][j] += L_RATE * data[j] * DerivativeSigmoid(z[i]) * dy;
+//bias[i] += L_RATE * DerivativeSigmoid(z[i]) * 2 * dy;
+
+
+
+
+/*
+float* _dy = new float[neuronNum];
+for (int i = 0; i < neuronNum; i++) _dy[i] = (answers[i] - hiddenLayer.activation[i]) * SigmoidPrime(hiddenLayer.activation[i]);
+
+// normalLayer backward
+for (int i = 0; i < neuronNum; i++)
+{
+	float sum = 0.0;
+	for (int j = 0; j < hiddenLayer.neuronNum; j++) sum += _dy[j] * hiddenLayer.weight[j][i];
+	_dy[i] = SigmoidPrime(normalLayer.activation[i]) * sum;
+}
+for (int i = 0; i < neuronNum; i++)
+{
+	for (int j = 0; j < inputPreNeuron; j++)
+	{
+		normalLayer.weight[i][j] += 0.2 * normalLayer.prevWeightDelta[i][j];
+		normalLayer.prevWeightDelta[i][j] = L_RATE * _dy[i] * Data::image[j];
+		normalLayer.weight[i][j] += normalLayer.prevWeightDelta[i][j];
+	}
+}*/

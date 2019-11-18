@@ -152,17 +152,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="mnist.cpp" />
-    <ClCompile Include="true_main.cpp" />
+    <ClCompile Include="mnist_main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="D:\Desktop\neural network\mnist\note.txt" />
     <Text Include="mnist_official.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="mnist.h" />
+    <None Include="..\README.md" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\README.md" />
+    <ClInclude Include="mnist.h" />
+    <ClInclude Include="mnist_debug.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

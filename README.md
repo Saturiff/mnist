@@ -11,6 +11,6 @@
 > C++
 
 ## 最新的更新日誌 2019/11/19 03:26 am (utc+8)
-新增項目 多層神經網路 
-暫停項目 RNN 
-測試項目 Python Keras for mnist 
+新增項目 + 多層神經網路  
+暫停項目 △ RNN  
+測試項目 + Python Keras for mnist  

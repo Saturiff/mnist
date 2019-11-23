@@ -4,164 +4,150 @@
 #include "time.h"
 #include "math.h"
 #pragma warning(disable:6031) // rand
-#define L_RATE            0.1
 #define ACTIONS_PRE_DATA  7
 #define STATUS_PRE_ACTION 7
 #define SEQ_ACTION        7
-enum class ActiveFunction { sigmoid, relu, softmax };
+#define L_RATE 0.001
+#define MOMENTUM 0.9
 class Layer
 {
-public:
-	Layer(Layer* prevLayer, int neuronNum, int inputPreNeuron, bool isInputLayer, bool isOutputLayer, bool isEnableBias, ActiveFunction activeMode)
+protected:
+	Layer(int neuronNum, int inputPreNeuron)
 	{
-		this->prevLayer = prevLayer, this->neuronNum = neuronNum, this->inputPreNeuron = inputPreNeuron, this->isInputLayer = isInputLayer, this->isOutputLayer = isOutputLayer, this->isEnableBias = isEnableBias, this->activeMode = activeMode, answers = new float[neuronNum], weight = new float* [neuronNum], bias = new float[neuronNum], activation = new float[neuronNum], z = new float[neuronNum];
-		for (int i = 0; i < neuronNum; i++) weight[i] = new float[inputPreNeuron];
-		InitLayer();
+		this->neuronNum = neuronNum;
+		this->inputPreNeuron = inputPreNeuron;
+		weight = new double* [inputPreNeuron];
+		activation = new double[neuronNum];
+		for (int i = 0; i < neuronNum; i++) activation[i] = 0;
+		for (int i = 0; i < inputPreNeuron; i++)
+		{
+			weight[i] = new double[neuronNum];
+			for (int j = 0; j < neuronNum; j++) weight[i][j] = rand() * 1.0 / RAND_MAX - 0.5;
+		}
 	}
 	~Layer()
 	{
-		delete[] answers, weight, bias, activation;
+		delete[] weight, activation;
 	}
-	void InitLayer()
+	double** weight, * activation;
+	int neuronNum, inputPreNeuron;
+	friend class Network;
+};
+class Network
+{
+public:
+	Network() : hiddenLayer(128, 7), outputLayer(10, 128)
 	{
-		for (int i = 0; i < neuronNum; i++)
+		int n1 = 7, n2 = hiddenLayer.neuronNum, n3 = outputLayer.neuronNum;
+		theta2 = new double[n2], theta3 = new double[n3], delta1 = new double* [n1], delta2 = new double* [n2], answers = new double[n3];
+		for (int i = 0; i < n1; i++)
 		{
-			z[i] = activation[i] = answers[i];
-			bias[i] = (isEnableBias) ? rand() * 1.0 / RAND_MAX - 0.5 : 1.0;
-			for (int j = 0; j < inputPreNeuron; j++) weight[i][j] = rand() * 1.0 / RAND_MAX - 0.5;
+			delta1[i] = new double[n2];
+			for (int j = 0; j < n2; j++) delta1[i][j] = 0;
+		}
+		for (int i = 0; i < n2; i++)
+		{
+			delta2[i] = new double[n3];
+			for (int j = 0; j < n3; j++) delta2[i][j] = 0;
 		}
 	}
-	void Forward(byte* prevA)
+	~Network()
 	{
-		ByteArr2FloatArr(prevA, &Layer::Forward);
+		delete[] theta2, theta3, delta1, delta2, answers;
 	}
-	void Forward(float* prevA)
+	void Forward()
 	{
-		for (int i = 0; i < neuronNum; i++)
+		for (int i = 0; i < hiddenLayer.neuronNum; i++) hiddenLayer.activation[i] = 0.0;
+		for (int i = 0; i < 7; i++) for (int j = 0; j < hiddenLayer.neuronNum; j++) hiddenLayer.activation[j] += hiddenLayer.weight[i][j] * (double)Data::input[i];
+		for (int i = 0; i < hiddenLayer.neuronNum; i++) hiddenLayer.activation[i] = Sigmoid(hiddenLayer.z[i]);
+		for (int i = 0; i < outputLayer.neuronNum; i++) outputLayer.activation[i] = 0.0;
+		for (int i = 0; i < hiddenLayer.neuronNum; i++) for (int j = 0; j < outputLayer.neuronNum; j++) outputLayer.activation[j] += outputLayer.weight[i][j] * hiddenLayer.activation[i];
+		for (int i = 0; i < outputLayer.neuronNum; i++) outputLayer.activation[i] = Sigmoid(outputLayer.z[i]);
+	}
+	void Backward()
+	{
+		int n1 = TOTAL_PIXEL, n2 = hiddenLayer.neuronNum, n3 = outputLayer.neuronNum;
+		double sum = 0.0;
+		for (int i = 0; i < n3; i++) answers[i] = 0; answers[Data::label] = 1;
+		for (int i = 0; i < n3; i++) theta3[i] = outputLayer.activation[i] * (1 - outputLayer.activation[i]) * (answers[i] - outputLayer.activation[i]);
+		for (int i = 0; i < n2; i++)
 		{
-			z[i] = bias[i];
-			for (int j = 0; j < inputPreNeuron; j++) z[i] += (double)weight[i][j] * (double)prevA[j] * 0.001;
-			if      (activeMode == ActiveFunction::relu)    activation[i] = ReLU(z[i]);
-			else if (activeMode == ActiveFunction::sigmoid) activation[i] = Sigmoid(z[i]);
+			sum = 0.0;
+			for (int j = 0; j < n3; j++) sum += outputLayer.weight[i][j] * theta3[j];
+			theta2[i] = hiddenLayer.activation[i] * (1 - hiddenLayer.activation[i]) * sum;
 		}
-		if (activeMode == ActiveFunction::softmax) Softmax(z, activation, neuronNum);
-	}
-	void SetAnswer(byte answer)
-	{
-		for (int i = 0; i < neuronNum; i++) answers[i] = 0; answers[answer] = 1;
-	}
-	void Backward(byte* prevA)
-	{
-		ByteArr2FloatArr(prevA, &Layer::Backward);
-	}
-	void Backward(float* prevA)
-	{
-		float dy = 0.0;
-		for (int i = 0; i < neuronNum; i++)
+		for (int i = 0; i < n2; i++)
 		{
-			dy = outputLayer.answers[i] - outputLayer.activation[i];
-			for (int j = 0; j < inputPreNeuron; j++) weight[i][j] += L_RATE * prevA[j] * dy;
-			bias[i] += (isEnableBias) ? L_RATE * dy : 0.0;
+			for (int j = 0; j < n3; j++)
+			{
+				delta2[i][j] = (L_RATE * theta3[j] * hiddenLayer.activation[i]) + (MOMENTUM * delta2[i][j]);
+				outputLayer.weight[i][j] += delta2[i][j];
+			}
+		}
+		for (int i = 0; i < n1; i++)
+		{
+			for (int j = 0; j < n2; j++)
+			{
+				delta1[i][j] = (L_RATE * theta2[j] * (double)Data::image[i]) + (MOMENTUM * delta1[i][j]);
+				hiddenLayer.weight[i][j] += delta1[i][j];
+			}
 		}
 	}
-	void FindAnswer(byte trueAnswer)
+	void FindAnswer()
 	{
 		int guessAnswer = 0;
-		for (int i = 0; i < neuronNum; i++) if (activation[i] > activation[guessAnswer]) guessAnswer = i;
-		fprintf(f, "activation = ");
-		for (int i = 0; i < neuronNum; i++) fprintf(f, "%f ", activation[i]);
-		fprintf(f, "====== guess = %d   answer = %d\n", guessAnswer, trueAnswer);
+		for (int i = 0; i < outputLayer.neuronNum; i++) if (outputLayer.activation[i] > outputLayer.activation[guessAnswer]) guessAnswer = i;
+		fprintf(f, "======== answer = %d   guess = %d   ", Data::label, guessAnswer);
+		printf("======== answer = %d   guess = %d\n", Data::label, guessAnswer);
+		for (int j = 0; j < 10; j++) fprintf(f, "%f ", outputLayer.activation[j]);
+		fprintf(f, "\n");
 	}
-	void FindAnswer(byte trueAnswer, float& cnt)
+	void FindAnswer(double& cnt)
 	{
 		int guessAnswer = 0;
-		for (int i = 0; i < neuronNum; i++) if (activation[i] > activation[guessAnswer]) guessAnswer = i;
-		if (guessAnswer == trueAnswer) cnt++;
-		fprintf(f, "activation = ");
-		for (int i = 0; i < neuronNum; i++) fprintf(f, "%f ", activation[i]);
-		fprintf(f, "====== guess = %d   answer = %d\n", guessAnswer, trueAnswer);
-		//printf("activation = ");
-		//for (int i = 0; i < neuronNum; i++) printf("%f ", activation[i]);
-		//printf("\n====== guess = %d   answer = %d\n", guessAnswer, trueAnswer);
+		for (int i = 0; i < outputLayer.neuronNum; i++) if (outputLayer.activation[i] > outputLayer.activation[guessAnswer]) guessAnswer = i;
+		if (guessAnswer == Data::label) cnt++;
 	}
-	float* activation;
-	int neuronNum;
 protected:
-	void ByteArr2FloatArr(byte* prevA, void (Layer::* func)(float*))
+	Layer hiddenLayer, outputLayer;
+	double _inline Sigmoid(double x)
 	{
-		float* _data = new float[7];
-		for (int i = 0; i < 7; i++) _data[i] = (float)prevA[i];
-		(this->*func)(_data);
-		delete[] _data;
+		return 1.0 / (1.0 + exp(-x));
 	}
-	double _inline Sigmoid(float x)
-	{
-		return exp(x) / (exp(x) + 1.0);
-	}
-	double _inline ReLU(float x)
-	{
-		return (x > 0.0) ? x : 0.0;
-	}
-	void _inline Softmax(float* in, float* out, int size)
-	{
-		float sum = 0.0;
-		for (int i = 0; i < size; i++) sum += exp(in[i]);
-		for (int i = 0; i < size; i++) out[i] = exp(in[i]) / sum;
-	}
-	float* answers, ** weight, * bias, * z;
-	Layer* prevLayer;
-	int inputPreNeuron;
-	bool isInputLayer, isOutputLayer, isEnableBias;
-	ActiveFunction activeMode;
-} inputLayer(nullptr, 128, 7, true, false, false, ActiveFunction::relu), outputLayer(&inputLayer, 7, 7, false, true, false, ActiveFunction::softmax);
+	double* theta2, * theta3, ** delta1, ** delta2, * answers;
+} network;
 int main()
 {
-	srand(time(NULL)); rand();
-	//float* mem1 = new float[inputLayer.neuronNum], * mem2 = new float[inputLayer.neuronNum];
-	//for (int i = 0; i < inputLayer.neuronNum; i++) mem1[i] = 0;
-	//for (int i = 0; i < inputLayer.neuronNum; i++) mem2[i] = 0;
 	_FOPEN;
-	Data::ResetData();
-	for (int i = 0; i < TRAIN_ITEMS; i++)
+	srand((unsigned int)time(NULL)); rand();
+	Data::ResetData(true);
+	for (int i = 0; i < 60000; i++)
 	{
 		for (int j = 0; j < 7; j++)
 		{
+			printf("train %d ", i);
 			Data::ReadNextTrain();
 			Data::NextTrainAnswer();
-			inputLayer.Forward(Data::input);
-			outputLayer.Forward(inputLayer.activation);
-			//for (int k = 0; k < inputLayer.neuronNum; k++) mem1[k] = inputLayer.activation[k];
-			//for (int k = 0; k < inputLayer.neuronNum; k++) mem2[k] = mem1[k] + inputLayer.activation[k];
-			//outputLayer.Forward(mem2);
-			//for (int k = 0; k < outputLayer.neuronNum; k++) mem2[k] += outputLayer.activation[k];
-			outputLayer.SetAnswer(Data::ans);
-			outputLayer.Backward(inputLayer.activation);
-			inputLayer.Backward(Data::input);
-			//outputLayer.FindAnswer(Data::ans);
+			network.Forward();
+			network.Backward();
+			//network.FindAnswer();
 		}
-		//for (int i = 0; i < inputLayer.neuronNum; i++) mem1[i] = 0;
-		//for (int i = 0; i < inputLayer.neuronNum; i++) mem2[i] = 0;
 	}
-	Data::ResetData();
-	float cnt = 0;
+	Data::ResetData(false);
+	double cnt = 0, localCnt = 0;
 	for (int i = 0; i < TEST_ITEMS; i++)
 	{
-		float localCnt = 0;
+		localCnt = 0;
 		for (int j = 0; j < 7; j++)
 		{
 			Data::ReadNextTest();
 			Data::NextTestAnswer();
-			inputLayer.Forward(Data::input);
-			//for (int k = 0; k < inputLayer.neuronNum; k++) mem1[k] = inputLayer.activation[k];
-			//for (int k = 0; k < inputLayer.neuronNum; k++) mem2[k] = mem1[k] + inputLayer.activation[k];
-			//outputLayer.Forward(mem2);
-			outputLayer.Forward(inputLayer.activation);
-			outputLayer.FindAnswer(Data::ans, localCnt);
+			network.Forward();
+			network.FindAnswer(cnt);
 		}
-		//for (int i = 0; i < inputLayer.neuronNum; i++) mem1[i] = 0;
-		//for (int i = 0; i < inputLayer.neuronNum; i++) mem2[i] = 0;
 		if (localCnt == 7) cnt += 1;
 	}
 	printf("¥¿½T²v =\t%.2f%% (%.f / %.f)\n", (cnt / (TEST_ITEMS * 1.0)) * 100.0, cnt, TEST_ITEMS * 1.0);
 	_FCLOSE;
+	return 0;
 }

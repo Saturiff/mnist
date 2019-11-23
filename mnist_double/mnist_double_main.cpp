@@ -1,6 +1,5 @@
 #include "mnist.h"
 #include "mnist_debug.h"
-#include "ReinaLibrary.h"
 #include "stdlib.h"
 #include "time.h"
 #include "math.h"

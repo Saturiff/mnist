@@ -132,6 +132,7 @@
     <Text Include="D:\Desktop\neural network\RNN\note.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="mnist_debug.h" />
     <ClInclude Include="rnn.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

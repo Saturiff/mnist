@@ -2,7 +2,6 @@
 #include <iostream>
 #pragma warning(disable:4996) // secure
 #define INPUT_SIZE        7
-//#define DATA_SIZE         49
 #define TRAIN_ITEMS       60000
 #define TEST_ITEMS        10000
 #define TRAIN_INPUT_FILE  "D:/Desktop/neural network/RNN/rnn-train-input-v2"

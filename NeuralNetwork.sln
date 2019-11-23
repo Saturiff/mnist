@@ -16,6 +16,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Github", "Github", "{24E376
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ReinaLibrary", "..\ReinaLibrary\ReinaLibrary\ReinaLibrary.vcxproj", "{1525A949-6E8D-497A-9924-5221A3E85694}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -62,6 +64,16 @@ Global
 		{C6ECA51C-34A8-4DAC-9A8A-93DA7899F434}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C6ECA51C-34A8-4DAC-9A8A-93DA7899F434}.Release|x64.ActiveCfg = Release|Any CPU
 		{C6ECA51C-34A8-4DAC-9A8A-93DA7899F434}.Release|x86.ActiveCfg = Release|Any CPU
+		{1525A949-6E8D-497A-9924-5221A3E85694}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{1525A949-6E8D-497A-9924-5221A3E85694}.Debug|x64.ActiveCfg = Debug|x64
+		{1525A949-6E8D-497A-9924-5221A3E85694}.Debug|x64.Build.0 = Debug|x64
+		{1525A949-6E8D-497A-9924-5221A3E85694}.Debug|x86.ActiveCfg = Debug|Win32
+		{1525A949-6E8D-497A-9924-5221A3E85694}.Debug|x86.Build.0 = Debug|Win32
+		{1525A949-6E8D-497A-9924-5221A3E85694}.Release|Any CPU.ActiveCfg = Release|Win32
+		{1525A949-6E8D-497A-9924-5221A3E85694}.Release|x64.ActiveCfg = Release|x64
+		{1525A949-6E8D-497A-9924-5221A3E85694}.Release|x64.Build.0 = Release|x64
+		{1525A949-6E8D-497A-9924-5221A3E85694}.Release|x86.ActiveCfg = Release|Win32
+		{1525A949-6E8D-497A-9924-5221A3E85694}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

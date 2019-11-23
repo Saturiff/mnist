@@ -152,11 +152,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="mnist.cpp" />
-    <ClCompile Include="mnist_double.cpp" />
+    <ClCompile Include="mnist_double_main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mnist.h" />
     <ClInclude Include="mnist_debug.h" />
+    <ClInclude Include="ReinaLibrary.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="double.txt" />

@@ -18,10 +18,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="mnist_double.cpp">
+    <ClCompile Include="mnist.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="mnist.cpp">
+    <ClCompile Include="mnist_double_main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -30,6 +30,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="mnist_debug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ReinaLibrary.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

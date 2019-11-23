@@ -40,5 +40,8 @@
     <ClInclude Include="rnn.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="mnist_debug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

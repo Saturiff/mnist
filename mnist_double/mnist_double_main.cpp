@@ -56,10 +56,10 @@ public:
 	{
 		for (int i = 0; i < hiddenLayer.neuronNum; i++) hiddenLayer.activation[i] = 0.0;
 		for (int i = 0; i < TOTAL_PIXEL; i++) for (int j = 0; j < hiddenLayer.neuronNum; j++) hiddenLayer.activation[j] += hiddenLayer.weight[i][j] * ((double)Data::image[i] / MAX_COLOR_VALUE);
-		for (int i = 0; i < hiddenLayer.neuronNum; i++) hiddenLayer.activation[i] = Sigmoid(hiddenLayer.z[i]);
+		for (int i = 0; i < hiddenLayer.neuronNum; i++) hiddenLayer.activation[i] = Sigmoid(hiddenLayer.activation[i]);
 		for (int i = 0; i < outputLayer.neuronNum; i++) outputLayer.activation[i] = 0.0;
 		for (int i = 0; i < hiddenLayer.neuronNum; i++) for (int j = 0; j < outputLayer.neuronNum; j++) outputLayer.activation[j] += outputLayer.weight[i][j] * hiddenLayer.activation[i];
-		for (int i = 0; i < outputLayer.neuronNum; i++) outputLayer.activation[i] = Sigmoid(outputLayer.z[i]);
+		for (int i = 0; i < outputLayer.neuronNum; i++) outputLayer.activation[i] = Sigmoid(outputLayer.activation[i]);
 	}
 	void Backward()
 	{

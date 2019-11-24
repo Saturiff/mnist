@@ -15,7 +15,6 @@ protected:
 	Layer(int neuronNum, int inputPreNeuron)
 	{
 		this->neuronNum = neuronNum;
-		this->inputPreNeuron = inputPreNeuron;
 		weight = new double* [inputPreNeuron];
 		activation = new double[neuronNum];
 		for (int i = 0; i < neuronNum; i++) activation[i] = 0;
@@ -30,7 +29,7 @@ protected:
 		delete[] weight, activation;
 	}
 	double** weight, * activation;
-	int neuronNum, inputPreNeuron;
+	int neuronNum;
 	friend class Network;
 };
 enum class Optimizer { Momentum, Adam };

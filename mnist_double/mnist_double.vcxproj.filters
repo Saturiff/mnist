@@ -32,9 +32,6 @@
     <ClInclude Include="mnist_debug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ReinaLibrary.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="double.txt">

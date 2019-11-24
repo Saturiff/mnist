@@ -4,8 +4,11 @@
 #include "time.h"
 #include "math.h"
 #pragma warning(disable:6031) // rand
-#define L_RATE 0.001
-#define MOMENTUM 0.9
+#define L_RATE 0.06 // 95.37
+#define MOMENTUM 0.9 // MOMENTUM 優化器，類物理形式的優化器：同向加速，反之減速
+#define BETA1 0.9    // Adam 優化器，參數 M
+#define BETA2 0.999  // Adam 優化器，參數 V
+#define EPSILON 1e-8 // 極小值，防止除0
 class Layer
 {
 protected:
@@ -30,27 +33,39 @@ protected:
 	int neuronNum, inputPreNeuron;
 	friend class Network;
 };
+enum class Optimizer { Momentum, Adam };
 class Network
 {
 public:
-	Network() : hiddenLayer(128, TOTAL_PIXEL), outputLayer(10, 128)
+	Network(Optimizer opti) : hiddenLayer(128, TOTAL_PIXEL), outputLayer(10, 128)
 	{
+		optimizer = opti;
 		int n1 = TOTAL_PIXEL, n2 = hiddenLayer.neuronNum, n3 = outputLayer.neuronNum;
-		theta2 = new double[n2], theta3 = new double[n3], delta1 = new double* [n1], delta2 = new double* [n2], answers = new double[n3];
+		theta2 = new double[n2], theta3 = new double[n3], delta1 = new double* [n1], delta2 = new double* [n2], m1 = new double* [n1], m2 = new double* [n2], answers = new double[n3];
 		for (int i = 0; i < n1; i++)
 		{
 			delta1[i] = new double[n2];
-			for (int j = 0; j < n2; j++) delta1[i][j] = 0;
+			m1[i] = new double[n2];
+			for (int j = 0; j < n2; j++)
+			{
+				delta1[i][j] = 0;
+				m1[i][j] = 0;
+			}
 		}
 		for (int i = 0; i < n2; i++)
 		{
 			delta2[i] = new double[n3];
-			for (int j = 0; j < n3; j++) delta2[i][j] = 0;
+			m2[i] = new double[n3];
+			for (int j = 0; j < n3; j++)
+			{
+				delta2[i][j] = 0;
+				m2[i][j] = 0;
+			}
 		}
 	}
 	~Network()
 	{
-		delete[] theta2, theta3, delta1, delta2, answers;
+		delete[] theta2, theta3, delta1, delta2, m1, m2, answers;
 	}
 	void Forward()
 	{
@@ -63,15 +78,21 @@ public:
 	}
 	void Backward()
 	{
+		if      (optimizer == Optimizer::Adam)     UseAdam();
+		else if (optimizer == Optimizer::Momentum) UseMomentum();
+	}
+	void UseMomentum()
+	{
 		int n1 = TOTAL_PIXEL, n2 = hiddenLayer.neuronNum, n3 = outputLayer.neuronNum;
 		double sum = 0.0;
 		for (int i = 0; i < n3; i++) answers[i] = 0; answers[Data::label] = 1;
-		for (int i = 0; i < n3; i++) theta3[i] = outputLayer.activation[i] * (1 - outputLayer.activation[i]) * (answers[i] - outputLayer.activation[i]);
+
+		for (int i = 0; i < n3; i++) theta3[i] = SigmoidDerivative(outputLayer.activation[i]) * (answers[i] - outputLayer.activation[i]);
 		for (int i = 0; i < n2; i++)
 		{
 			sum = 0.0;
 			for (int j = 0; j < n3; j++) sum += outputLayer.weight[i][j] * theta3[j];
-			theta2[i] = hiddenLayer.activation[i] * (1 - hiddenLayer.activation[i]) * sum;
+			theta2[i] = SigmoidDerivative(hiddenLayer.activation[i]) * sum;
 		}
 		for (int i = 0; i < n2; i++)
 		{
@@ -90,7 +111,40 @@ public:
 			}
 		}
 	}
-	void FindAnswer()
+	void UseAdam()
+	{
+		int n1 = TOTAL_PIXEL, n2 = hiddenLayer.neuronNum, n3 = outputLayer.neuronNum;
+		double sum = 0.0;
+		for (int i = 0; i < n3; i++) answers[i] = 0; answers[Data::label] = 1;
+
+		for (int i = 0; i < n3; i++) theta3[i] = SigmoidDerivative(outputLayer.activation[i]) * (answers[i] - outputLayer.activation[i]);
+		for (int i = 0; i < n2; i++)
+		{
+			sum = 0.0;
+			for (int j = 0; j < n3; j++) sum += outputLayer.weight[i][j] * theta3[j];
+			theta2[i] = SigmoidDerivative(hiddenLayer.activation[i]) * sum;
+		}
+		for (int i = 0; i < n2; i++)
+		{
+			for (int j = 0; j < n3; j++)
+			{
+				m2[i][j] = (1 - BETA1) * theta3[j] * hiddenLayer.activation[i], 2 + (BETA1 * m2[i][j]);
+				delta2[i][j] = (1 - BETA2) * pow(theta3[j] * hiddenLayer.activation[i], 2) + (BETA2 * delta2[i][j]);
+				
+				outputLayer.weight[i][j] += L_RATE * (m2[i][j] / (1 - BETA1)) / (sqrt((delta2[i][j] / (1 - BETA2))) + EPSILON);
+			}
+		}
+		for (int i = 0; i < n1; i++)
+		{
+			for (int j = 0; j < n2; j++)
+			{
+				m1[i][j] = (1 - BETA1) * theta2[j] * (double)Data::image[i] + (BETA1 * m1[i][j]);
+				delta1[i][j] = (1 - BETA1) * pow(theta2[j] * (double)Data::image[i], 2) + (BETA2 * delta1[i][j]);
+				hiddenLayer.weight[i][j] += L_RATE * (m1[i][j] / (1 - BETA1)) / (sqrt((delta1[i][j] / (1 - BETA2))) + EPSILON);
+			}
+		}
+	}
+	void FindAnswer() // for debug: put in train
 	{
 		int guessAnswer = 0;
 		for (int i = 0; i < outputLayer.neuronNum; i++) if (outputLayer.activation[i] > outputLayer.activation[guessAnswer]) guessAnswer = i;
@@ -106,13 +160,18 @@ public:
 		if (guessAnswer == Data::label) cnt++;
 	}
 protected:
-	Layer hiddenLayer, outputLayer;
 	double _inline Sigmoid(double x)
 	{
 		return 1.0 / (1.0 + exp(-x));
 	}
-	double * theta2, * theta3, ** delta1, ** delta2, * answers;
-} network;
+	double _inline SigmoidDerivative(double x)
+	{
+		return x * (1 - x);
+	}
+	Optimizer optimizer;
+	Layer hiddenLayer, outputLayer;
+	double * theta2, * theta3, ** delta1, ** delta2, ** m1, ** m2, * answers;
+} network(Optimizer::Adam);
 int main()
 {
 	_FOPEN;
@@ -120,11 +179,9 @@ int main()
 	Data::ResetData(true);
 	for (int i = 0; i < 60000; i++)
 	{
-		printf("train %d ", i);
 		Data::ReadNextTrain();
 		network.Forward();
 		network.Backward();
-		network.FindAnswer();
 	}
 	Data::ResetData(false);
 	double cnt = 0;

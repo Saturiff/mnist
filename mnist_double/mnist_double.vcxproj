@@ -157,7 +157,6 @@
   <ItemGroup>
     <ClInclude Include="mnist.h" />
     <ClInclude Include="mnist_debug.h" />
-    <ClInclude Include="ReinaLibrary.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="double.txt" />

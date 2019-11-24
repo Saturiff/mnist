@@ -20,3 +20,9 @@ void Print2DArray(const char* arrName, T** arr, int sizeX, int sizeY)
 	}
 	printf("\n");
 }
+
+template <typename T1, typename T2>
+void ConvertArrayType(T1* src, T2* dst, int size)
+{
+	for (int i = 0; i < size; i++) dst[i] = src[i];
+}

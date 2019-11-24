@@ -126,7 +126,6 @@
     <ClCompile Include="rnn.cpp" />
     <ClCompile Include="rnn_gen_new.cpp" />
     <ClCompile Include="rnn_main.cpp" />
-    <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="D:\Desktop\neural network\RNN\note.txt" />

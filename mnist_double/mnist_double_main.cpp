@@ -1,10 +1,9 @@
 #include "mnist.h"
-#include "mnist_debug.h"
 #include "stdlib.h"
 #include "time.h"
 #include "math.h"
 #pragma warning(disable:6031) // rand
-#define L_RATE 0.06 // 95.37
+#define L_RATE 0.06  // 95.37
 #define MOMENTUM 0.9 // MOMENTUM 優化器，類物理形式的優化器：同向加速，反之減速
 #define BETA1 0.9    // Adam 優化器，參數 M
 #define BETA2 0.999  // Adam 優化器，參數 V
@@ -121,15 +120,6 @@ public:
 			hiddenLayer.weight[i][j] += L_RATE * (m1[i][j] / (1 - BETA1)) / (sqrt((delta1[i][j] / (1 - BETA2))) + EPSILON);
 		}
 	}
-	void FindAnswer() // for debug: put in train
-	{
-		int guessAnswer = 0;
-		for (int i = 0; i < outputLayer.neuronNum; i++) if (outputLayer.activation[i] > outputLayer.activation[guessAnswer]) guessAnswer = i;
-		fprintf(f, "======== answer = %d   guess = %d   ", Data::label, guessAnswer);
-		printf("======== answer = %d   guess = %d\n", Data::label, guessAnswer);
-		for (int j = 0; j < 10; j++) fprintf(f, "%f ", outputLayer.activation[j]);
-		fprintf(f, "\n");
-	}
 	void FindAnswer(double& cnt)
 	{
 		int guessAnswer = 0;
@@ -153,14 +143,14 @@ protected:
 int main()
 {
 	srand((unsigned int)time(NULL)); rand();
-	Data::ResetData(true);
+	Data::ResetData();
 	for (int i = 0; i < 60000; i++)
 	{
 		Data::ReadNextTrain();
 		network.Forward();
 		network.Backward();
 	}
-	Data::ResetData(false);
+	Data::ResetData();
 	double cnt = 0;
 	for (int i = 0; i < TEST_ITEMS; i++)
 	{

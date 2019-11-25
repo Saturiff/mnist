@@ -18,7 +18,7 @@ class Data
 public:
 	static byte  label;
 	static byte* image;
-	static void ResetData(bool);
+	static void ResetData();
 	static void ReadNextTrain();
 	static void ReadNextTest();
 private:

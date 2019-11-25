@@ -1,35 +1,24 @@
 
-	void ByteArr2FloatArr(byte* prevA, void (Layer::* func)(double*))
-	{
-		double* _data = new double[TOTAL_PIXEL];
-		for (int i = 0; i < TOTAL_PIXEL; i++) _data[i] = (double)prevA[i];
-		(this->*func)(_data);
-		delete[] _data;
-	}
+// convert
+void ByteArr2FloatArr(byte* prevA, void (Layer::* func)(double*))
+{
+	double* _data = new double[TOTAL_PIXEL];
+	for (int i = 0; i < TOTAL_PIXEL; i++) _data[i] = (double)prevA[i];
+	(this->*func)(_data);
+	delete[] _data;
+}
 
-// note for 3b1b vid
-data   = a(L-1)
-guess  = a(L)
-answer = y
-z      = z(L)
-	/*double _inline Sigmoid(double x)
-	{
-		return exp(x) / (exp(x) + 1);
-	}*/
-	double _inline ReLU(double x)
-	{
-		return (x > 0.0) ? x : 0.0;
-	}
-	double _inline ReLUDerivative(double x)
-	{
-		return (x >= 0.0) ? 1.0 : 0.0;
-	}
-	void _inline Softmax(double* in, double* out, int size)
-	{
-		double sum = 0.0;
-		for (int i = 0; i < size; i++) sum += exp(in[i]);
-		for (int i = 0; i < size; i++) out[i] = exp(in[i]) / sum;
-	}
+	
+// for debug: put in train
+void FindAnswer()
+{
+	int guessAnswer = 0;
+	for (int i = 0; i < outputLayer.neuronNum; i++) if (outputLayer.activation[i] > outputLayer.activation[guessAnswer]) guessAnswer = i;
+	fprintf(f, "======== answer = %d   guess = %d   ", Data::label, guessAnswer);
+	printf("======== answer = %d   guess = %d\n", Data::label, guessAnswer);
+	for (int j = 0; j < 10; j++) fprintf(f, "%f ", outputLayer.activation[j]);
+	fprintf(f, "\n");
+}
 
 //dropout
 , this->dropout = dropout
@@ -77,147 +66,3 @@ void RandomDropout()
 	}
 }
 
-
-
-//weight area
-	void WeightOffset(float* prevA, int num, float dy)
-{
-	int offset = 0;
-	float wArr[9];
-	for (int i = 0; i < TOTAL_PIXEL; i += offset)
-	{
-		for (int j = 0; j < 3; j++) for (int k = 0; k < 3; k++) wArr[j * 3 + k] = L_RATE * prevA[i + j * COLUMNS + k] * dy;
-		for (int j = 0; j < 3; j++) for (int k = 0; k < 3; k++) weight[num][i + j * COLUMNS + k] += ((j == 1 && k == 1) ? 1.0 : 0.1) * (((double)wArr[j * 3 + k] + (double)wArr[4]) / 2.0);
-		if (i == TOTAL_PIXEL - COLUMNS * 2 - 3) break;
-		else offset = (i % COLUMNS == COLUMNS - 3) ? 3 : 1;
-	}
-}
-
-
-//debug find for forward
-void FindAnswerDebug(byte trueAnswer)
-{
-	int guessAnswer = 0;
-	for (int i = 0; i < neuronNum; i++) if (activation[i] > activation[guessAnswer]) guessAnswer = i;
-	fprintf(f, "======== answer = %d   guess = %d   ", Data::label, guessAnswer);
-	for (int j = 0; j < 10; j++) fprintf(f, "%f ", outputLayer.activation[j]);
-	fprintf(f, "\n");
-}
-
-//softmax test
-void _inline Softmax(float* x, int size)
-{
-	float sum = 0.0;
-	for (int i = 0; i < size; i++) sum += exp(x[i]);
-	for (int i = 0; i < size; i++) x[i] = exp(x[i]) / sum;
-}
-int main()
-{
-	int size = 7;
-	float* x = new float[size];
-	x[0] = 1;
-	x[1] = 2;
-	x[2] = 3;
-	x[3] = 4;
-	x[4] = 1;
-	x[5] = 2;
-	x[6] = 3;
-	Softmax(x, size);
-	printf("Softmax = ");
-	for (int i = 0; i < size; i++) printf("%f ", x[i]);
-	printf("\n");
-	return 0;
-}
-
-
-
-
-class Network
-{
-public:
-	Layer* layers, * outLayer;
-	int layerNum, inputDataNum, outputDataNum;
-	Network(int layerNum, int inputDataNum, int outputDataNum)
-	{
-		this->layerNum = layerNum;
-		this->inputDataNum = inputDataNum;
-		this->outputDataNum = outputDataNum;
-		layers = new Layer[layerNum];
-		outLayer = &layers[layerNum - 1];
-	}
-	void InitLayerByIndex(int layerIdx, int neuronNum, bool isEnableBias, ActiveFunction activeMode)
-	{
-		layers[layerIdx].Init(neuronNum, (layerIdx == 0) ? inputDataNum : layers[layerIdx - 1].neuronNum, layerIdx == 0, layerIdx == (layerNum - 1), isEnableBias, activeMode);
-		layers[layerIdx].prevLayer = (layers[layerIdx].isInputLayer) ? NULL : &layers[layerIdx - 1];
-		layers[layerIdx].nextLayer = (layers[layerIdx].isOutputLayer) ? NULL : &layers[layerIdx + 1];
-		layers[layerIdx].layerIndex = layerIdx;
-		layers[layerIdx].outputLayer = outLayer;
-		if(layerIdx > 0)layers[layerIdx].inputPreNeuron = layers[layerIdx - 1].neuronNum;
-		if(layerIdx == (layerNum - 1)) PrintLayerInfo();
-	}
-	void PrintLayerInfo()
-	{
-		Layer* layer;
-		for (int i = 0; i < layerNum; i++)
-		{
-			layer = &layers[i];
-			printf("=================\nlayer [%d] =\nisInput ? %s\nisOutput ? %s\nprev = %d\nnext = %d\ninput pre neuron = %d\nneuron num = %d\nactive mode = %s\n\n",
-				layer->layerIndex,
-				(layer->isInputLayer) ? "true" : "false",
-				(layer->isOutputLayer) ? "true" : "false",
-				(layer->prevLayer != nullptr) ? layer->prevLayer->layerIndex : -1,
-				(layer->nextLayer != nullptr) ? layer->nextLayer->layerIndex : -1,
-				layer->inputPreNeuron,
-				layer->neuronNum,
-				(layer->activeMode == ActiveFunction::relu) ? "relu" : (layer->activeMode == ActiveFunction::softmax) ? "softmax" : (layer->activeMode == ActiveFunction::sigmoid) ? "sigmoid" : "NULL"
-			);
-		}
-	}
-	void Forward(byte* x)
-	{
-		layers[0].Forward(Data::image);
-		layers[1].Forward(layers[0].activation);
-	}
-	void Backward(byte* image, byte answer)
-	{
-		layers[1].SetAnswer(Data::label);
-		layers[1].Backward(layers[0].activation);
-		layers[0].SetAnswer(Data::label);
-		layers[0].Backward(Data::image);
-	}
-	void FindAnswer(byte answer)
-	{
-		layers[1].FindAnswer(answer);
-	}
-	void FindAnswer(byte answer, float& cnt)
-	{
-		layers[1].FindAnswer(answer, cnt);
-	}
-};
-int main()
-{
-	_FOPEN;
-	srand((unsigned int)time(NULL)); rand();
-	Network network(2, TOTAL_PIXEL, 10);
-	network.InitLayerByIndex(0, 128, false, ActiveFunction::relu);
-	network.InitLayerByIndex(1, 10, false, ActiveFunction::softmax);
-
-	Data::ResetData(true);
-	for (int i = 0; i < 60000; i++)
-	{
-		Data::ReadNextTrain();
-		network.Forward(Data::image);
-		network.Backward(Data::image, Data::label);
-		network.FindAnswer(Data::label);
-	}
-	Data::ResetData(false);
-	float cnt = 0;
-	for (int i = 0; i < TEST_ITEMS; i++)
-	{
-		Data::ReadNextTest();
-		network.Forward(Data::image);
-		network.FindAnswer(Data::label, cnt);
-	}
-	printf("¥¿½T²v =\t%.2f%% (%.f / %.f)\n", (cnt / (TEST_ITEMS * 1.0)) * 100.0, cnt, TEST_ITEMS * 1.0);
-	return 0;
-}

@@ -8,13 +8,10 @@ int   Data::offsetOfTrainLabel = 0;
 int   Data::offsetOfTrainImage = 0;
 int   Data::offsetOfTestLabel = 0;
 int   Data::offsetOfTestImage = 0;
-void  Data::ResetData(bool isTrain)
+void  Data::ResetData()
 {
-	label = ((isTrain) ? offsetOfTrainLabel : offsetOfTestLabel) = ((isTrain) ? offsetOfTrainImage : offsetOfTestImage) = 0;
-	if (isTrain)
-	{
-		delete[] image; image = new byte[TOTAL_PIXEL];
-	}
+	label =  offsetOfTrainLabel = offsetOfTestLabel = offsetOfTrainImage = offsetOfTestImage = 0;	
+	delete[] image; image = new byte[TOTAL_PIXEL];
 }
 void Data::ReadNextLabel(const char fileName[], bool isTrain)
 {

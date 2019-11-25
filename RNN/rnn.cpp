@@ -11,14 +11,6 @@ void  Data::ResetData()
 	ans = offsetOfInput = offsetOfAnswer = 0;
 	delete[] input; input = new byte[INPUT_SIZE];
 }
-void Data::NextTrainAnswer()
-{
-	ReadNextAnswer(TRAIN_ANSWER_FILE);
-}
-void Data::NextTestAnswer()
-{
-	ReadNextAnswer(TEST_ANSWER_FILE);
-}
 void Data::ReadNextAnswer(const char fileName[])
 {
 	FILE* labelFile = fopen(fileName, "rb");
@@ -38,8 +30,10 @@ void Data::ReadNextInput(const char fileName[])
 void Data::ReadNextTrain()
 {
 	ReadNextInput(TRAIN_INPUT_FILE);
+	ReadNextAnswer(TRAIN_ANSWER_FILE);
 }
 void Data::ReadNextTest()
 {
 	ReadNextInput(TEST_INPUT_FILE);
+	ReadNextAnswer(TEST_ANSWER_FILE);
 }

@@ -91,6 +91,10 @@ public:
 			hiddenLayer.weight[i][j] += delta1[i][j];
 		}
 	}
+	void ResetMem()
+	{
+		for (int i = 0; i < hiddenLayer.neuronNum; i++) mem[i] = 0;
+	}
 	void PrintGuess()
 	{
 		int guessAnswer = 0;
@@ -148,32 +152,15 @@ int main()
 	_FOPEN;
 	srand((unsigned int)time(NULL)); rand();
 	Data::ResetData();
-	int* in = new int[7];
 	for (int i = 0; i < 60000; i++) // 資料數
 	{
-		//if (i > 55000)
+		for (int j = 0; j < 7; j++)
 		{
-			//printf("train %d\n", i);
-			//fprintf(f, "=======\ntrain %d\n", i);
-			//fprintf(f, "guess = ");
-			for (int j = 0; j < 7; j++)
-			{
-				Data::ReadNextTrain();
-				Data::NextTrainAnswer();
-				//network.PrintInput();
-				//ConvertArrayType(Data::input, in, 7);
-				//for (int i = 0; i < 7; i++) in[i] = Data::input[i];
-				//Print1DArray("train input", in, 7);
-				network.Forward();
-				network.Backward(); 
-
-				//fprintf(f, "\n");
-				//network.PrintGuess();
-			}
-			
-			
-			
+			Data::ReadNextTrain();
+			network.Forward();
+			network.Backward();
 		}
+		network.ResetMem();
 	}
 	printf("\n=======\n");
 	Data::ResetData();
@@ -181,15 +168,14 @@ int main()
 	for (int i = 0; i < TEST_ITEMS; i++)
 	{
 		localCnt = 0;
-		//printf("test %d\n", i);
 		for (int j = 0; j < 7; j++)
 		{
 			Data::ReadNextTest();
-			Data::NextTestAnswer();
 			network.Forward();
 			network.FindAnswer(localCnt);
 		}
 		if (localCnt == 7) cnt += 1;
+		network.ResetMem();
 	}
 	printf("正確率 =\t%.2f%% (%.f / %.f)\n", (cnt / (TEST_ITEMS * 1.0)) * 100.0, cnt, TEST_ITEMS * 1.0);
 	_FCLOSE;

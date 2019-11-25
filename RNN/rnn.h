@@ -16,8 +16,6 @@ public:
 	static byte  ans;
 	static byte* input;
 	static void ResetData();
-	static void NextTrainAnswer();
-	static void NextTestAnswer();
 	static void ReadNextTrain();
 	static void ReadNextTest();
 private:

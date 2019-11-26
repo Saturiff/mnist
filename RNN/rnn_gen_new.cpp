@@ -1,41 +1,58 @@
-//#define GEN_NEW
-#ifdef GEN_NEW
 #include "rnn.h"
+#ifdef GEN_NEW
+
 #include "stdlib.h"
 #include "time.h"
 #include "math.h"
 #pragma warning(disable:6031; disable:4996) // rand
 
-int r() { return round(rand() * 1.0 / RAND_MAX * 6); }
-void FormatArray(int* idx, byte** arr2d)
+int* dataIdx = new int[INPUT_SIZE], * ansIdx = new int[INPUT_SIZE];
+byte** data2d = new byte * [INPUT_SIZE];
+FILE* fInput, * fAns;
+void Init()
 {
 	for (int i = 0; i < INPUT_SIZE; i++)
 	{
-		for (int j = 0; j < INPUT_SIZE; j++) arr2d[i][j] = 0;
-		arr2d[i][idx[i]] = 1;
+		dataIdx[i] = ansIdx[i] = 0;
+		data2d[i] = new byte[INPUT_SIZE];
+		for (int j = 0; j < INPUT_SIZE; j++) data2d[i][j] = 0;
 	}
 }
 void WriteToFile(const char* inputFilePath, const char* ansFilePath, int itemQuantity)
 {
-	int* dataIdx = new int[INPUT_SIZE], * ansIdx = new int[INPUT_SIZE];
-	byte** data2d = new byte * [INPUT_SIZE], ** ans2d = new byte * [INPUT_SIZE];
-	for (int i = 0; i < INPUT_SIZE; i++)
-	{
-		data2d[i] = new byte[INPUT_SIZE];
-		ans2d[i] = new byte[INPUT_SIZE];
-	}
-	FILE* fInput = fopen(inputFilePath, "wb"), * fAns = fopen(ansFilePath, "wb");
+	fInput = fopen(inputFilePath, "wb"), fAns = fopen(ansFilePath, "wb");
 	for (int i = 0; i < itemQuantity; i++)
 	{
-		for (int j = 0; j < INPUT_SIZE; j++)
+		int money = 0;
+		for (int j = 0; j < INPUT_SIZE; j++) // main logic loop: 7 action pre seq
 		{
-			dataIdx[j] = r();
-
-			if (dataIdx[j] == 0 || dataIdx[j] == 1 || dataIdx[j] == 2)      ansIdx[j] = 0;
-			else if (dataIdx[j] == 3 || dataIdx[j] == 4 || dataIdx[j] == 5) ansIdx[j] = dataIdx[j] - 2;
-			else if (dataIdx[j] == 6)                                       ansIdx[j] = 4;
+			// 0: idle
+			// 1: can buy
+			// 2: drop A
+			// 3: drop B
+			// 4: drop C
+			dataIdx[j] = (int)round(rand() * 1.0 / RAND_MAX * 6);
+			if (dataIdx[j] == 0 || dataIdx[j] == 1 || dataIdx[j] == 2) // in money 1, 5, 10
+			{
+				money += (dataIdx[j] == 0) ? 1 : (dataIdx[j] == 1) ? 5 : (dataIdx[j] == 2) ? 10 : 0;
+				ansIdx[j] = 0; // idle
+			}
+			else if (dataIdx[j] == 3 || dataIdx[j] == 4 || dataIdx[j] == 5) // select item A, B, C
+			{
+				if (money >= 5) // can buy item now
+				{
+					ansIdx[j] = dataIdx[j] - 2;
+					money = 0;
+				}
+				else ansIdx[j] = 0; // keep idle
+			}
+			else if (dataIdx[j] == 6) ansIdx[j] = money = 0; // return money -> idle
 		}
-		FormatArray(dataIdx, data2d);
+		for (int i = 0; i < INPUT_SIZE; i++)
+		{
+			for (int j = 0; j < INPUT_SIZE; j++) data2d[i][j] = 0;
+			data2d[i][dataIdx[i]] = 1;
+		}
 		for (int j = 0; j < 7; j++)
 		{
 			for (int k = 0; k < 7; k++) fwrite(&data2d[j][k], sizeof(byte), 1, fInput);
@@ -47,6 +64,7 @@ void WriteToFile(const char* inputFilePath, const char* ansFilePath, int itemQua
 }
 void Gen()
 {
+	Init();
 	WriteToFile(TRAIN_INPUT_FILE, TRAIN_ANSWER_FILE, TRAIN_ITEMS);
 	WriteToFile(TEST_INPUT_FILE, TEST_ANSWER_FILE, TEST_ITEMS);
 }

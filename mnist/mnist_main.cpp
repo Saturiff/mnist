@@ -79,7 +79,7 @@ int main()
 		Forward(Data::image, weight, bias, output);
 		FindAnswer(Data::label, output, cnt);
 	}
-	printf("¥¿½T²v =\t%.2f%% (%.f / %.f)\n", (cnt / (TEST_ITEMS * 1.0)) * 100.0, cnt, TEST_ITEMS * 1.0);
+	printf("æ­£ç¢ºçŽ‡ =\t%.2f%% (%.f / %.f)\n", (cnt / (TEST_ITEMS * 1.0)) * 100.0, cnt, TEST_ITEMS * 1.0);
 	delete[] answerArray, weight, bias, output;
 	return 0;
 }

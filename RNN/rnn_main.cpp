@@ -39,7 +39,7 @@ class Network
 public:
 	Network() : hiddenLayer(128, 7), outputLayer(10, 128)
 	{
-		int n1 = 7, n2 = hiddenLayer.neuronNum, n3 = outputLayer.neuronNum;
+		n1 = 7, n2 = hiddenLayer.neuronNum, n3 = outputLayer.neuronNum;
 		theta2 = new double[n2], theta3 = new double[n3], delta1 = new double* [n1], delta2 = new double* [n2], answers = new double[n3], mem = new double[n2], memWeight = new double[n2];
 		for (int i = 0; i < n1; i++)
 		{
@@ -59,16 +59,15 @@ public:
 	}
 	void Forward()
 	{
-		for (int i = 0; i < hiddenLayer.neuronNum; i++) hiddenLayer.activation[i] = 0.0;
-		for (int i = 0; i < 7; i++) for (int j = 0; j < hiddenLayer.neuronNum; j++) hiddenLayer.activation[j] += hiddenLayer.weight[i][j] * (double)Data::input[i] + memWeight[j] * mem[j];
-		for (int i = 0; i < hiddenLayer.neuronNum; i++) hiddenLayer.activation[i] = mem[i] = Sigmoid(hiddenLayer.activation[i]);
-		for (int i = 0; i < outputLayer.neuronNum; i++) outputLayer.activation[i] = 0.0;
-		for (int i = 0; i < hiddenLayer.neuronNum; i++) for (int j = 0; j < outputLayer.neuronNum; j++) outputLayer.activation[j] += outputLayer.weight[i][j] * hiddenLayer.activation[i];
-		for (int i = 0; i < outputLayer.neuronNum; i++) outputLayer.activation[i] = Sigmoid(outputLayer.activation[i]);
+		for (int i = 0; i < n2; i++) hiddenLayer.activation[i] = 0.0;
+		for (int i = 0; i < n1; i++) for (int j = 0; j < n2; j++) hiddenLayer.activation[j] += hiddenLayer.weight[i][j] * (double)Data::input[i] + memWeight[j] * mem[j];
+		for (int i = 0; i < n2; i++) hiddenLayer.activation[i] = mem[i] = Sigmoid(hiddenLayer.activation[i]);
+		for (int i = 0; i < n3; i++) outputLayer.activation[i] = 0.0;
+		for (int i = 0; i < n2; i++) for (int j = 0; j < n3; j++) outputLayer.activation[j] += outputLayer.weight[i][j] * hiddenLayer.activation[i];
+		for (int i = 0; i < n3; i++) outputLayer.activation[i] = Sigmoid(outputLayer.activation[i]);
 	}
 	void Backward()
 	{
-		int n1 = 7, n2 = hiddenLayer.neuronNum, n3 = outputLayer.neuronNum;
 		double sum = 0.0;
 		for (int i = 0; i < n3; i++) answers[i] = 0; answers[Data::ans] = 1;
 		for (int i = 0; i < n3; i++) theta3[i] = SigmoidDerivative(outputLayer.activation[i]) * (answers[i] - outputLayer.activation[i]);
@@ -97,12 +96,12 @@ public:
 	}
 	void ResetMem()
 	{
-		for (int i = 0; i < hiddenLayer.neuronNum; i++) mem[i] = 0;
+		for (int i = 0; i < n2; i++) mem[i] = 0;
 	}
 	void FindAnswer(double& cnt)
 	{
 		int guessAnswer = 0;
-		for (int i = 0; i < outputLayer.neuronNum; i++) if (outputLayer.activation[i] > outputLayer.activation[guessAnswer]) guessAnswer = i;
+		for (int i = 0; i < n3; i++) if (outputLayer.activation[i] > outputLayer.activation[guessAnswer]) guessAnswer = i;
 		if (guessAnswer == Data::ans) cnt++;
 	}
 protected:
@@ -115,6 +114,7 @@ protected:
 		return x * (1 - x);
 	}
 	Layer hiddenLayer, outputLayer;
+	int n1, n2, n3;
 	double* theta2, * theta3, ** delta1, ** delta2, * answers, * mem, * memWeight;
 } network;
 int main()
@@ -122,7 +122,7 @@ int main()
 	_FOPEN;
 	srand((unsigned int)time(NULL)); rand();
 	Data::ResetData();
-	for (int i = 0; i < 60000; i++) // 資料數
+	for (int i = 0; i < TRAIN_ITEMS; i++) // 資料數
 	{
 		for (int j = 0; j < 7; j++)
 		{

@@ -1,4 +1,4 @@
-﻿#include "mnist.h"
+#include "mnist.h"
 
 Data::Data() { }
 Data::~Data() { }
